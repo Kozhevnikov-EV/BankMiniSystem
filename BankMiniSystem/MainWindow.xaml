@@ -22,9 +22,9 @@
     <Grid ShowGridLines="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="400"/>
+            <RowDefinition Height="380"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="120"/>
@@ -57,9 +57,9 @@
                        TextWrapping="Wrap" FontSize="12" FontWeight="Bold" Margin="2,0" Width="116"/>
             <Button Content="Все операции" Click="Button_Click_AllTransaction" />
             <Button Content="Справка" Click="Button_Click_Rules"/>
-            
+
         </StackPanel>
-        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical">
+        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical" Height="109" VerticalAlignment="Top">
             <TextBlock Text="Демонстрация работы во времени" HorizontalAlignment="Center" Background="Lime"
                        TextWrapping="Wrap" FontSize="12" FontWeight="Bold" Margin="2,0" Width="116"/>
             <TextBlock x:Name="TodayBox" Foreground="White" Background="Navy"/>
@@ -201,8 +201,11 @@
         <Border Grid.Column="2" Grid.Row="0" BorderBrush="LightSeaGreen" BorderThickness="5" CornerRadius="10" Background="DeepSkyBlue">
             <TextBlock Text="Счета клиента" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold"/>
         </Border>
-        <TextBlock Text="Сообщения системы:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" 
-                   TextWrapping="Wrap" FontSize="14" FontWeight="ExtraBold"/>
+        <DockPanel Grid.Row="3" Grid.Column="0">
+            <ProgressBar x:Name="Progress" DockPanel.Dock="Bottom" Orientation="Horizontal" Height="25" Margin="5"/>
+            <TextBlock DockPanel.Dock="Left" Text="Статус:" Margin="5" HorizontalAlignment="Right"/>
+            <TextBlock x:Name="Operation" DockPanel.Dock="Right" Margin="5" HorizontalAlignment="Left"/>
+        </DockPanel>
         <ListBox x:Name="LogPanel"  Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Background="Black" 
                  MouseDoubleClick="LogPanel_MouseDoubleClick">
             <ListBox.ItemTemplate>

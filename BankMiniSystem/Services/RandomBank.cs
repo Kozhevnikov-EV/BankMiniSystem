@@ -27,7 +27,7 @@ namespace BankMiniSystem.Services
             Account.ResetStaticId();
             Client.ResetStaticId();
             Transaction.ResetStaticId();
-            for (int i = 1; i < 11; i++) //Добавляем по одному экземпляру клиента каждого класса наследника Client
+            for (int i = 1; i <= 100; i++) //Добавляем по одному экземпляру клиента каждого класса наследника Client
             {
                 bank.AddCompany($"OOO", $"Организация_{i}");
                 bank.AddVIP($"Имя_{R.Next(1,101)}", $"Фамилия_{R.Next(1, 101)}", new DateTime(1980, 01, 01), $"Предприятие_{R.Next(1, 101)}");
@@ -35,7 +35,7 @@ namespace BankMiniSystem.Services
             }
             foreach (var client in bank.Clients) //добавляем каждому клиентов случайное число счетов со случайными суммами на балансе
             {
-                for (int i = 0; i < R.Next(1, 6); i++) { bank.AddAccount(client.Id, Convert.ToDouble(R.Next(1,11)*100)); }
+                for (int i = 0; i < R.Next(1, 100); i++) { bank.AddAccount(client.Id, Convert.ToDouble(R.Next(1,11)*100)); }
             }
             return bank;
         }
