@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="WPF_Histogramm_Library.Histogram"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WPF_Histogramm_Library"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ListBox x:Name="list"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Date, StringFormat=hh:mm dd/MM/yyyy}"/>
+                        <TextBlock Text="{Binding StringFormat=Баланс: {0}, Path=Message}"/>
+                        <TextBlock Text="{Binding StringFormat=Транзакция(Id): {0}, Path=TransactionId}"/>
+                        <Rectangle Fill="Tomato" Width="{Binding Balance}" Height="20" HorizontalAlignment="Left"/>
+                        
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

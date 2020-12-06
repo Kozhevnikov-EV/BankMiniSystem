@@ -1,0 +1,16 @@
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/BankExtensions_Library/bin/Debug
+/BankExtensions_Library/obj/Debug
+/BankMiniSystem/.vs/BankMiniSystem/v16
+/BankMiniSystem/bin/Debug
+/BankMiniSystem/obj/Debug
+/BankMiniSystem/packages/Newtonsoft.Json.12.0.3
+/BankModel/bin/Debug
+/BankModel/obj/Debug
+/InvalidNameException/bin/Debug
+/InvalidNameException/obj/Debug
+/WPF_Histogramm_Library/bin/Debug
+/WPF_Histogramm_Library/obj/Debug

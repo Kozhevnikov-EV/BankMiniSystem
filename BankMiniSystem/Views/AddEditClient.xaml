@@ -1,0 +1,63 @@
+﻿<Window x:Class="BankMiniSystem.Views.AddEditClient"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BankMiniSystem.Views"
+        mc:Ignorable="d"
+        Title="Новый клиент" Height="450" Width="350" MinHeight="300" MinWidth="200" MaxHeight="600" MaxWidth="500">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Margin" Value="20,10,0,0"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </Window.Resources>
+    <Grid ShowGridLines="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="110"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel x:Name="RadioButtonClient" Orientation="Vertical" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0">
+            <Label Content="Тип работника:" FontSize="14" FontStyle="Italic" FontWeight="Bold"/>
+            <RadioButton x:Name="NaturalCheck" Content="Физическое лицо" Checked="RadioButton_Natural"/>
+            <RadioButton x:Name="VIPcheck" Content="VIP клиент" Checked="RadioButton_VIP"/>
+            <RadioButton x:Name="CompanyCheck" Content="Юридическое лицо" Checked="RadioButton_Company"/>
+        </StackPanel>
+        <TextBlock x:Name="NameBlock" Text="Имя:" Grid.Column="0" Grid.Row="1" Visibility="Collapsed"/>
+        <TextBlock x:Name="SurnameBlock" Text="Фамилия:" Grid.Column="0" Grid.Row="2" Visibility="Collapsed"/>
+        <TextBlock x:Name="BirthdayBlock" Text="Дата рождения:" Grid.Column="0" Grid.Row="3" Visibility="Collapsed"/>
+        <TextBlock x:Name="WorkPlaceBlock" Text="Место работы:" Grid.Column="0" Grid.Row="4" Visibility="Collapsed"/>
+        <TextBlock x:Name="TypeOrgBlock" Text="Тип организации:" Grid.Column="0" Grid.Row="1" Visibility="Collapsed"/>
+        <TextBlock x:Name="NameOrgBlock" Text="Наименование:" Grid.Column="0" Grid.Row="2" Visibility="Collapsed"/>
+        <TextBox x:Name="NameBox" Grid.Column="1" Grid.Row="1" Margin="2" Visibility="Collapsed"/>
+        <TextBox x:Name="SurnameBox" Grid.Column="1" Grid.Row="2" Margin="2" Visibility="Collapsed"/>
+        <DatePicker x:Name="BirthdayBox" Grid.Column="1" Grid.Row="3" Margin="2" SelectedDateFormat="Short" FirstDayOfWeek="Monday"
+                    IsTodayHighlighted="True" Visibility='Collapsed'/>
+        <TextBox x:Name="WorkPlaceBox" Grid.Column="1" Grid.Row="4" Margin="2" Visibility="Collapsed"/>
+        <TextBox x:Name="TypeOrgBox" Grid.Column="1" Grid.Row="1" Margin="2" Visibility="Collapsed"/>
+        <TextBox x:Name="NameOrgBox" Grid.Column="1" Grid.Row="2" Margin="2" Visibility="Collapsed"/>
+        <Button x:Name="Add" Content="Добавить" Grid.Column="0" Grid.Row="9" Click="AddEdit_Click" Margin="2"/>
+        <Button x:Name="Cancel" Content="Отмена" Grid.Column="1" Grid.Row="9" Click="Cancel_Click" Margin="2"/>
+    </Grid>
+</Window>
