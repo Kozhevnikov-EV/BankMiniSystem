@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
 using System.Windows;
 
 namespace BankModel_Library
