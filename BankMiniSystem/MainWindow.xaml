@@ -33,10 +33,7 @@
         </Grid.ColumnDefinitions>
         <Menu Grid.Row="0" Grid.Column="0">
             <MenuItem Header="Файл">
-                <MenuItem Header="Новый банк" Click="MenuItem_NewBank"/>
-                <MenuItem Header="Загрузить" Click="MenuItem_Open"/>
-                <MenuItem Header="Сохранить" Click="MenuItem_Save"/>
-                <MenuItem Header="Демонстрация" Click="MenuItem_Random"/>
+                <MenuItem Header="Подключиться к БД" Click="MenuItem_NewBank"/>
             </MenuItem>
             <MenuItem Header="Настройки" Click="MenuItem_Click_Settings"/>
         </Menu>
@@ -201,11 +198,6 @@
         <Border Grid.Column="2" Grid.Row="0" BorderBrush="LightSeaGreen" BorderThickness="5" CornerRadius="10" Background="DeepSkyBlue">
             <TextBlock Text="Счета клиента" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold"/>
         </Border>
-        <DockPanel Grid.Row="3" Grid.Column="0">
-            <ProgressBar x:Name="Progress" DockPanel.Dock="Bottom" Orientation="Horizontal" Height="25" Margin="5"/>
-            <TextBlock DockPanel.Dock="Left" Text="Статус:" Margin="5" HorizontalAlignment="Right"/>
-            <TextBlock x:Name="Operation" DockPanel.Dock="Right" Margin="5" HorizontalAlignment="Left"/>
-        </DockPanel>
         <ListBox x:Name="LogPanel"  Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Background="Black" 
                  MouseDoubleClick="LogPanel_MouseDoubleClick">
             <ListBox.ItemTemplate>

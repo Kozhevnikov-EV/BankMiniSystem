@@ -99,10 +99,10 @@ namespace BankModel_Library
 
         #region Конструкторы
         /// <summary>
-        /// Конструктор для Json
+        /// Конструктор для Json + SQL
         /// </summary>
         [JsonConstructor]
-        private Transaction(int Id, string Name, DateTime Date, int FromAccount, int ToAccount, double Sum, bool Status)
+        public Transaction(int Id, string Name, DateTime Date, int FromAccount, int ToAccount, double Sum, bool Status)
         {
             this.Id = Id;
             this.Name = Name;

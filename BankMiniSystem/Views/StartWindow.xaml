@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BankMiniSystem.Views"
         mc:Ignorable="d"
-        Title="miniTechnologies" Height="240" Width="200">
+        Title="miniTechnologies" Height="180" Width="200">
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Margin" Value="5"/>
@@ -17,9 +17,7 @@
     <Grid>
         <StackPanel>
             <Image Source="logo.JPG"/>
-            <Button Content="Создать новый банк" Click="Button_NewBank"/>
-            <Button Content="Загрузить существующий" Click="Button_Load"/>
-            <Button Content="Демонстрация" Click="Button_Random"/>
+            <Button Content="Подключиться к MS SQl" Click="Button_ConnectToDB"/>
             <Button Content="Выход" Click="Button_Exit"/>
         </StackPanel>
     </Grid>

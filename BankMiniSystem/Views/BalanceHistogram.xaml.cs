@@ -20,10 +20,10 @@ namespace BankMiniSystem.Views
     /// </summary>
     public partial class BalanceHistogram : Window
     {
-        internal BalanceHistogram(Account account)
+        internal BalanceHistogram(List<BalanceLog> logs)
         {
             InitializeComponent();
-            Graph.Data = GetBalanceInPercent(account.Logs); //вызываем метод, который создает коллекцию BalanceLog для отображения
+            if(logs.Count != 0) Graph.Data = GetBalanceInPercent(logs); //вызываем метод, который создает коллекцию BalanceLog для отображения
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace BankMiniSystem.Views
         {
             List<BalanceLog> ColInPercent = new List<BalanceLog>(log.Count); //новая коллекция, в которую добавим значения BalanceLog для отображения
             double Max = log.Max().Balance; //Максимальное значение баланса исходной коллекции
-            foreach (var e in log) //наполняем коллекцию для отображени в цикле
+            foreach (var e in log) //наполняем коллекцию для отображения в цикле
             {
                 BalanceLog LogForHistogram = (BalanceLog)e.Clone(); //копируем элемент исходной коллекции
                 //В копии меняем значение баланса = значение исходного баланса выражаем в виде доли от максимального значения баланса

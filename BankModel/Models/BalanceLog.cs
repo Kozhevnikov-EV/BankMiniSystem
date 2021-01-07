@@ -13,6 +13,8 @@ namespace BankModel_Library
     public class BalanceLog : ActivityInfo, IComparable<BalanceLog>, ICloneable
     {
         #region Свойства
+        public int AccountId { get; }
+        
         /// <summary>
         /// Баланс
         /// </summary>
@@ -35,9 +37,10 @@ namespace BankModel_Library
         /// </summary>
         /// <param name="balance">Баланс</param>
         /// <param name="transationId">Id транзакции</param>
-        public BalanceLog(double balance, int transationId)
+        public BalanceLog(int accountId, double balance, int transationId)
             : base(balance.ToString())
         {
+            AccountId = accountId;
             Balance = balance;
             TransactionId = transationId;
         }
@@ -50,9 +53,21 @@ namespace BankModel_Library
         /// <param name="balance">Баланс</param>
         /// <param name="transationId">Id транзакции</param>
         [JsonConstructor]
-        public BalanceLog(DateTime date, double balance, int transationId)
+        public BalanceLog(DateTime date, int accountId, double balance, int transationId)
             : base(date, balance.ToString())
         {
+            AccountId = accountId;
+            Balance = balance;
+            TransactionId = transationId;
+        }
+
+        /// <summary>
+        /// SQL
+        /// </summary>
+        public BalanceLog(DateTime date, int accountId, string Message, double balance, int transationId)
+            : base(date, Message)
+        {
+            AccountId = accountId;
             Balance = balance;
             TransactionId = transationId;
         }
@@ -77,7 +92,7 @@ namespace BankModel_Library
         /// <returns></returns>
         public object Clone()
         {
-            BalanceLog copy = new BalanceLog(Date, Balance, TransactionId);
+            BalanceLog copy = new BalanceLog(Date, AccountId, Balance, TransactionId);
             return copy;
         }
         #endregion

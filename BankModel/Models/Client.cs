@@ -13,40 +13,6 @@ namespace BankModel_Library
     /// </summary>
     public abstract class Client 
     {
-        #region Статичное поле, конструктор и методы для работы с Id
-        /// <summary>
-        /// Статическое поле для staticId
-        /// </summary>
-        [JsonIgnore]
-        private static int staticId;
-
-        /// <summary>
-        /// Статичный конструктор для инициализации staticId
-        /// </summary>
-        static Client()
-        {
-            staticId = 0;
-        }
-
-        /// <summary>
-        /// Статический метод для получения следущего Id
-        /// </summary>
-        /// <returns>Id</returns>
-        private static int NextId()
-        {
-            staticId++;
-            return staticId;
-        }
-
-        /// <summary>
-        /// Метод обнуления значения staticId
-        /// </summary>
-        public static void ResetStaticId()
-        {
-            staticId = 0;
-        }
-        #endregion
-
         #region Поля и свойства
         /// <summary>
         /// Личный номер
@@ -79,14 +45,12 @@ namespace BankModel_Library
         /// </summary>
         public Client()
         {
-            Id = NextId();
             CreditRating = 0;
         }
 
         /// <summary>
-        /// Конструктор для Json
+        /// Конструктор для SQL (с прямым присвоением Id из БД)
         /// </summary>
-        [JsonConstructor]
         protected Client(int Id, int CreditRating)
         {
             this.Id = Id;

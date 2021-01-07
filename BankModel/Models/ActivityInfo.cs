@@ -33,10 +33,10 @@ namespace BankModel_Library
         }
 
         /// <summary>
-        /// Конструктор для Json
+        /// Конструктор для Json + SQL
         /// </summary>
         [JsonConstructor]
-        protected ActivityInfo(DateTime Date, string Message)
+        public ActivityInfo(DateTime Date, string Message)
             : this(Message)
         {
             this.Date = Date;

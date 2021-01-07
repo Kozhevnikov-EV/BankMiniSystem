@@ -31,13 +31,13 @@ namespace BankModel_Library
 
         #region Конструкторы и методы
         /// <summary>
-        /// Базовый конструктор
+        /// Базовый конструктор (без присвоения Id)
         /// </summary>
         /// <param name="Name">Имя</param>
         /// <param name="Surname">Фамилия</param>
         /// <param name="Birthday">Дата рождения</param>
-        public NaturalPerson (string Name, string Surname, DateTime Birthday)
-            : base ()
+        public NaturalPerson(string Name, string Surname, DateTime Birthday)
+            : base()
         {
             this.Name = Name;
             this.Surname = Surname;
@@ -45,11 +45,20 @@ namespace BankModel_Library
         }
 
         /// <summary>
-        /// Конструктор для Json
+        /// Конструктор для SQL (прямое присвоение Id из БД)
         /// </summary>
-        [JsonConstructor]
-        protected NaturalPerson()
-        { }
+        /// <param name="Id">Id</param>
+        /// <param name="CreditRating">Кредитный рейтинг</param>
+        /// <param name="Name">Имя</param>
+        /// <param name="Surname">Фамилия</param>
+        /// <param name="Birthday">Дата рождения</param>
+        public NaturalPerson(int Id, int CreditRating, string Name, string Surname, DateTime Birthday)
+            : base(Id, CreditRating)
+        {
+            this.Name = Name;
+            this.Surname = Surname;
+            this.Birthday = Birthday;
+        }
 
         /// <summary>
         /// Метод редактирования свойств экземпляра класса NaturalPerson

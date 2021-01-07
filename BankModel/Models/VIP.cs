@@ -36,7 +36,7 @@ namespace BankModel_Library
 
         #region Конструкторы и методы
         /// <summary>
-        /// Базовый конструктор
+        /// Базовый конструктор (без присвоения Id)
         /// </summary>
         /// <param name="Name">Имя</param>
         /// <param name="Surname">Фамилия</param>
@@ -52,11 +52,22 @@ namespace BankModel_Library
         }
 
         /// <summary>
-        /// Конструктор для Json
+        /// Конструктор для SQL (прямое присвоение Id из БД)
         /// </summary>
-        [JsonConstructor]
-        protected VIP()
-        { }
+        /// <param name="Id">Id</param>
+        /// <param name="CreditRating">Кредитный рейтинг</param>
+        /// <param name="Name">Имя</param>
+        /// <param name="Surname">Фамилия</param>
+        /// <param name="Birthday">Дата рождения</param>
+        /// <param name="WorkPlace">Место работы</param>
+        public VIP(int Id, int CreditRating, string Name, string Surname, DateTime Birthday, string WorkPlace)
+            : base(Id, CreditRating)
+        {
+            this.Name = Name;
+            this.Surname = Surname;
+            this.Birthday = Birthday;
+            this.WorkPlace = WorkPlace;
+        }
 
         /// <summary>
         /// Метод редактирования свойств экземпляра класса VIP

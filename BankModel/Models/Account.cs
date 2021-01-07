@@ -12,40 +12,6 @@ namespace BankModel_Library
     /// </summary>
     public class Account
     {
-        #region Статичное поле, конструктор и методы для получения Id экземпляра Account и сброса значения staticId
-        /// <summary>
-        /// Статическое поле для staticId
-        /// </summary>
-        [JsonProperty]
-        private static int staticId;
-
-        /// <summary>
-        /// Статичный конструктор для инициализации staticId
-        /// </summary>
-        static Account()
-        {
-            staticId = 0;
-        }
-
-        /// <summary>
-        /// Статический метод для получения следущего Id
-        /// </summary>
-        /// <returns>Id</returns>
-        private static int NextId()
-        {
-            staticId++;
-            return staticId;
-        }
-
-        /// <summary>
-        /// Метод сброса текущего значения staticId
-        /// </summary>
-        public static void ResetStaticId()
-        {
-            staticId = 0;
-        }
-        #endregion
-
         #region Поля и свойства класса + Событие!
         /// <summary>
         /// Событие "Изменение баланса" - активность счета
@@ -126,22 +92,20 @@ namespace BankModel_Library
             ///Баланс не может отрицательным
             set { if (isOpen == true && value >= 0) { balance = Math.Round(value, 2); } } 
         }
-        
-        /// <summary>
-        /// Коллекция BalanceLog - история значений баланса счета
-        /// </summary>
-        [JsonProperty]
-        public List<BalanceLog> Logs { get; private set; }
-
         #endregion
 
         #region Конструкторы
         /// <summary>
-        /// Конструктор для Json
+        /// Констуктор для SQL (с прямым присвоение Id из БД)
         /// </summary>
-        [JsonConstructor]
-        protected Account(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance,
-            List<BalanceLog> Logs)
+        /// <param name="Id"></param>
+        /// <param name="ClientId"></param>
+        /// <param name="IsOpen"></param>
+        /// <param name="IsRefill"></param>
+        /// <param name="IsWithdrawal"></param>
+        /// <param name="OpenDate"></param>
+        /// <param name="Balance"></param>
+        public Account(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance)
         {
             this.Id = Id;
             this.ClientId = ClientId;
@@ -150,25 +114,21 @@ namespace BankModel_Library
             this.IsWithdrawal = IsWithdrawal;
             this.OpenDate = OpenDate;
             this.balance = Balance;
-            this.Logs = new List<BalanceLog>();
-            this.Logs = Logs;
         }
 
         /// <summary>
-        /// Базовый конструктор
+        /// Базовый конструктор (без присвоения Id)
         /// </summary>
         /// <param name="ClientId">Id клиента - владельца счета</param>
         /// <param name="StartBalance">Стартовая сумма на счете</param>
         public Account(int ClientId, double StartBalance)
         {
-            Id = NextId();
             isOpen = true;
             IsRefill = true;
             IsWithdrawal = true;
             this.ClientId = ClientId;
             Balance = Math.Round(StartBalance, 2);
             OpenDate = Bank.Today;
-            Logs = new List<BalanceLog>(); //{ new BalanceLog(Balance, 0) };
         }
         #endregion
 
@@ -187,7 +147,8 @@ namespace BankModel_Library
             //Создаем экземпляр класса ActivityInfo с информацией об изменении баланса
             ActivityInfo activity = new ActivityInfo($"Баланс изменился: {StartBalance} --> {Balance} (Транзакция Id {TransactionId})");
             Activity?.Invoke(this, activity); //вызываем событие - т.е. выполняем подписанные на события методы соответвующих экземпляров классов
-            Logs.Add(new BalanceLog(Balance, TransactionId)); //добавляем информацию о балансе и транзакции в логи
+            Activity?.Invoke(this, new BalanceLog(this.Id, Balance, TransactionId));
+            //Logs.Add(new BalanceLog(Balance, TransactionId)); //добавляем информацию о балансе и транзакции в логи
             return Success; //возвращаем контрольную переменную
         }
 
@@ -205,7 +166,8 @@ namespace BankModel_Library
             //Создаем экземпляр класса ActivityInfo с информацией об изменении баланса
             ActivityInfo activity = new ActivityInfo($"Баланс изменился: {StartBalance} --> {Balance} (Транзакция Id {TransactionId})");
             Activity?.Invoke(this, activity); //вызываем событие - т.е. выполняем подписанные на события методы соответвующих экземпляров классов
-            Logs.Add(new BalanceLog(Balance, TransactionId)); //добавляем информацию о балансе и транзакции в логи
+            Activity?.Invoke(this, new BalanceLog(this.Id, Balance, TransactionId));
+            //Logs.Add(new BalanceLog(Balance, TransactionId)); //добавляем информацию о балансе и транзакции в логи
             return Success; //возвращаем контрольную переменную
         }
         #endregion

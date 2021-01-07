@@ -109,28 +109,7 @@ namespace BankModel_Library
 
         #region Конструкторы
         /// <summary>
-        /// Конструктор для Json
-        /// </summary>
-        [JsonConstructor]
-        protected Credit(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance, double Percent,
-           DateTime EndDate, DateTime PreviousCapitalization, Queue<DateTime> CapitalizationDates, bool IsActive, double StartDebt,
-           double CurentDebt, double MonthlyPayment, bool WithoutNegativeBalance, List<BalanceLog> balanceLogs)
-           : base(Id, ClientId, IsOpen, IsRefill, IsWithdrawal, OpenDate, Balance, balanceLogs)
-        {
-            //Далее присваиваем Свойства экземпляра класса из параметров, переданных в конструктор
-            this.Percent = Percent;
-            this.EndDate = EndDate;
-            this.PreviousCapitalization = PreviousCapitalization;
-            this.CapitalizationDates = CapitalizationDates;
-            this.IsActive = IsActive;
-            this.StartDebt = StartDebt;
-            this.CurentDebt = CurentDebt;
-            this.MonthlyPayment = MonthlyPayment;
-            this.WithoutNegativeBalance = WithoutNegativeBalance;
-        }
-
-        /// <summary>
-        /// Основной конструктор экземпляра Credit
+        /// Основной конструктор экземпляра Credit (Без присвоения Id)
         /// </summary>
         /// <param name="clientId">Id владельца счета</param>
         /// <param name="startBalance">Стартовая сумма на счете</param>
@@ -161,6 +140,32 @@ namespace BankModel_Library
             } while (NextCapitalization < EndDate);
             //расчитываем размер ежемесячного погашения основного долга
             MonthlyPayment = StartDebt / CapitalizationDates.Count;
+        }
+
+        /// <summary>
+        /// Конструктор для SQL (с прямым присовоением Id из БД)
+        /// </summary>
+        public Credit(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance, double Percent,
+                DateTime EndDate, DateTime PreviousCapitalization, bool IsActive, double StartDebt,
+                double CurentDebt, double MonthlyPayment, bool WithoutNegativeBalance)
+                : base(Id, ClientId, IsOpen, IsRefill, IsWithdrawal, OpenDate, Balance)
+        {
+            this.Percent = Percent;
+            this.EndDate = EndDate;
+            this.PreviousCapitalization = PreviousCapitalization;
+            this.CapitalizationDates = CapitalizationDates;
+            this.IsActive = IsActive;
+            this.StartDebt = StartDebt;
+            this.CurentDebt = CurentDebt;
+            this.MonthlyPayment = MonthlyPayment;
+            this.WithoutNegativeBalance = WithoutNegativeBalance;
+            CapitalizationDates = new Queue<DateTime>();
+            DateTime NextCapitalization = PreviousCapitalization;
+            do
+            {
+                NextCapitalization = NextCapitalization.AddMonths(1);
+                CapitalizationDates.Enqueue(NextCapitalization);
+            } while (NextCapitalization < EndDate);
         }
         #endregion
 

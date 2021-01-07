@@ -95,24 +95,7 @@ namespace BankModel_Library
 
         #region Конструкторы
         /// <summary>
-        /// Конструктор для Json
-        /// </summary>
-        [JsonConstructor]
-        protected Deposit(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance, double Percent,
-            bool Capitalization, DateTime EndDate, DateTime PreviousCapitalization, Queue<DateTime> CapitalizationDates, bool IsActive,
-            List<BalanceLog> balanceLogs)
-            : base(Id, ClientId, IsOpen, IsRefill, IsWithdrawal, OpenDate, Balance, balanceLogs)
-        {
-            this.Percent = Percent;
-            this.Capitalization = Capitalization;
-            this.EndDate = EndDate;
-            this.PreviousCapitalization = PreviousCapitalization;
-            this.CapitalizationDates = CapitalizationDates;
-            this.IsActive = IsActive;
-        }
-
-        /// <summary>
-        /// Основной конструктор для создания экземпляра класса Deposit
+        /// Основной конструктор для создания экземпляра класса Deposit (без присвоения Id)
         /// </summary>
         /// <param name="clientId">Id клиента - владельца</param>
         /// <param name="startBalance">Стартовая сумма на счете</param>
@@ -123,7 +106,7 @@ namespace BankModel_Library
             : base(clientId, startBalance)
         {
             //Логика установки процентной ставки
-            this.Percent = (Percent <= 0 || Percent > 100) ? this.Percent = Bank.BaseRate : Math.Round(Percent, 2);
+            this.Percent = (percent <= 0 || percent > 100) ? this.Percent = Bank.BaseRate : Math.Round(percent, 2);
             //Далее присваеваем свойства экземпляра класса из параметров, переданных в конструктор
             Capitalization = capitalization;
             EndDate = endDate;
@@ -140,6 +123,27 @@ namespace BankModel_Library
                     CapitalizationDates.Enqueue(NextCapitalization);
                 } while (NextCapitalization <= EndDate);
             }
+        }
+
+        /// <summary>
+        /// Конструктор для SQL (прямое присвоение Id из БД)
+        /// </summary>
+        public Deposit(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance, double Percent,
+          bool Capitalization, DateTime EndDate, DateTime PreviousCapitalization, bool IsActive)
+            : base(Id, ClientId, IsOpen, IsRefill, IsWithdrawal, OpenDate, Balance)
+        {
+            this.Percent = Percent;
+            this.Capitalization = Capitalization;
+            this.EndDate = EndDate;
+            this.PreviousCapitalization = PreviousCapitalization;
+            this.CapitalizationDates = new Queue<DateTime>();
+            DateTime NextCapitalization = PreviousCapitalization;
+            do
+            {
+                NextCapitalization = NextCapitalization.AddMonths(1);
+                CapitalizationDates.Enqueue(NextCapitalization);
+            } while (NextCapitalization <= EndDate);
+            this.IsActive = IsActive;
         }
         #endregion
 

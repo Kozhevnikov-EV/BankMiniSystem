@@ -26,7 +26,7 @@ namespace BankModel_Library
 
         #region Конструкторы и методы
         /// <summary>
-        /// Базовый конструктор по умолчанию
+        /// Базовый конструктор (без присвоения Id)
         /// </summary>
         /// <param name="TypeOrg">Тип организации</param>
         /// <param name="Name">Наименование</param>
@@ -38,11 +38,18 @@ namespace BankModel_Library
         }
 
         /// <summary>
-        /// Конструктор для Json
+        /// Конструктор для SQL (прямое присвоение Id из БД)
         /// </summary>
-        [JsonConstructor]
-        private Company()
-        { }
+        /// <param name="Id">Id</param>
+        /// <param name="CreditRating">Кредитный рейтинг</param>
+        /// <param name="TypeOrg">Тип организации</param>
+        /// <param name="Name">Наименование</param>
+        public Company(int Id, int CreditRating, string TypeOrg, string Name)
+            : base(Id, CreditRating)
+        {
+            this.TypeOrg = TypeOrg;
+            this.Name = Name;
+        }
 
         /// <summary>
         /// Метод редактирования свойств экземпляра класса Company

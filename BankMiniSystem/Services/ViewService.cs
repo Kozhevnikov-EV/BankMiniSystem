@@ -123,9 +123,9 @@ namespace BankMiniSystem.Services
         public static void GetLogCollection(Bank bank, ObservableCollection<ActivityInfo> activities)
         {
             activities?.Clear();
-            for(int i = bank.LogList.Count - 1; i >= 0; i--)
+            foreach(var act in bank.LogList)
             {
-                activities.Add(bank.LogList[i]);
+                activities.Add(act);
             }
         }
     }

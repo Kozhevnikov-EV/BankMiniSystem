@@ -74,7 +74,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Services\ExceptionHandler.cs" />
-    <Compile Include="Services\RandomBank.cs" />
     <Compile Include="Services\ViewService.cs" />
     <Compile Include="Views\AddDepositCredit.xaml.cs">
       <DependentUpon>AddDepositCredit.xaml</DependentUpon>
@@ -184,7 +183,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -58,6 +58,13 @@
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\VIP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SQL\SQLAccountDB.cs" />
+    <Compile Include="SQL\SQLActivityInfoDB.cs" />
+    <Compile Include="SQL\SQLBalanceLogDB.cs" />
+    <Compile Include="SQL\SQLBankSettings.cs" />
+    <Compile Include="SQL\SQLClientDB.cs" />
+    <Compile Include="SQL\SQLConString.cs" />
+    <Compile Include="SQL\SQLTransactionDB.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -72,5 +79,6 @@
       <Name>InvalidCharException_Library</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

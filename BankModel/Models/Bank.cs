@@ -19,18 +19,16 @@ namespace BankModel_Library
         /// <summary>
         /// Событие "Исключение" возникает при исключении в экземпляре Bank
         /// </summary>
-        public event Action<Exception> BankException;
+        public static event Action<Exception> BankException;
 
         /// <summary>
         /// Отображает текущую дату
         /// </summary>
-        [JsonProperty]
-        public static DateTime Today { get; private set; }
+        public static DateTime Today { get; set; }
 
         /// <summary>
         /// Базовая ставка - поле
         /// </summary>
-        [JsonProperty]
         private static double baseRate;
         
         /// <summary>
@@ -45,7 +43,7 @@ namespace BankModel_Library
         /// <summary>
         /// Наименование
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Коллекция экземпляров клиентов
@@ -70,113 +68,40 @@ namespace BankModel_Library
 
         #region Конструкторы
         /// <summary>
-        /// Базовый конструктор, создает пустой экземпляр Bank
+        /// Базовый конструктор, создает экземпляр банка из данных БД
         /// </summary>
         public Bank()
         {
-            Today = DateTime.Now;
-            Clients = new ObservableCollection<Client>();
-            Accounts = new ObservableCollection<Account>();
-            Transactions = new ObservableCollection<Transaction>();
-            LogList = new ObservableCollection<ActivityInfo>();
-        }
-
-        /// <summary>
-        /// Конструктор для Json
-        /// </summary>
-        [JsonConstructor]
-        private Bank(string Name)
-            : this()
-        {
-            this.Name = Name;
-        }
-
-        /// <summary>
-        /// Переопределенный конструктор с объявлением свойств Name и BaseRate
-        /// </summary>
-        /// <param name="Name">Имя</param>
-        /// <param name="BaseRate">Базова процентная ставка</param>
-        public Bank(string Name, int BaseRate)
-            : this()
-        {
-            this.Name = Name;
-            Bank.BaseRate = BaseRate;
+            SQLBankSettings.SetBankFields(this);
+            Clients = SQLClientDB.GetClients();
+            Accounts = SQLAccountDB.GetAccounts();
+            Transactions = SQLTransactionDB.GetAllTransactions();
+            LogList = SQLActivityInfoDB.GetLog();
+            SubscribeBankItemsToEvenst();
         }
         #endregion
 
-        #region Индексаторы
-
-        /// <summary>
-        /// Возвращает экземпляр клиента которому принадлежит счет
-        /// </summary>
-        /// <param name="account">счет</param>
-        /// <returns>Client</returns>
-        public Client this[Account account]
+        public static void InvokeExeptionEvent(Exception Ex)
         {
-            get
-            {
-                Client temp = null;
-                foreach (var e in Clients)
-                {
-                    if (e.Id == account.ClientId) { temp = e; break; }
-                }
-                return temp;
-            }
+            BankException?.Invoke(Ex);
         }
-        #endregion
 
-        #region Методы работы с Json и подписка на события десериазизованного экземпляра Bank!
-        public Bank LoadFromJson(string Path)
-        {
-            Bank bank = null;
-            Account.ResetStaticId();
-            Client.ResetStaticId();
-            Transaction.ResetStaticId();
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All }; //в переменную с настройками для Json конвертера
-            var json = "";                                                                        //прописываем запись всех .NET типов имен (чтобы конвертер знал какой объект он конвертирует)
-            try
-            {
-                json = File.ReadAllText(Path); //считываем файл в текстовую переменную
-                bank = JsonConvert.DeserializeObject<Bank>(json, settings); //десериализуем
-                SubscribeBankItemsToEvenst(bank); //вызываем метод "оформления подписок"
-            }
-            // !!!Убрал обработку данного исключения из этого участка кода, т.к обработкой исключений теперь занимается UI, который
-            // подписан на событие BankException !!!
-            //catch (FileNotFoundException Ex) //обрабатываем исключение если файл не найден
-            //{
-            //    BankException?.Invoke(Ex);
-            //}
-            //catch (JsonException Ex) //исключение, если ошибка произошла в ходе десериализации
-            //{
-            //    BankException?.Invoke(Ex);
-            //}
-            catch (Exception Ex) //Прочие исключения
-            {
-                //ExceptionMessageBox Box = new ExceptionMessageBox(Ex);  //выводим MessageBox на экран
-                BankException?.Invoke(Ex);
-            }
-            if (bank == null) //если не удалось загрузить банк с файла, то создаем новый
-            {
-                bank = new Bank("Новый банк", 12);
-            }
-            return bank;
-        }
+        #region Методы работы, подписывающие свойства банка на события!
 
         /// <summary>
         /// Подписывает клиентов на событие "Закрытие кредита" (CreditFinished) их кредитных счетов (Credit) и подписывает счета
         /// на событие "Изменение в балансе"
-        /// Используется при загрузке с Json
         /// </summary>
         /// <param name="bank">Экземпляр Bank, клиентов и счета которого надо подписывать на события</param>
-        private void SubscribeBankItemsToEvenst(Bank bank)
+        private void SubscribeBankItemsToEvenst()
         {
-            foreach(var account in bank.Accounts) //перебираем в цикле все счета
+            foreach (var account in Accounts) //перебираем в цикле все счета
             {
-                account.Activity += bank.AddActivityToLogList; //и все счета подписываем на событие "Изменение баланса"
-                if(account is Credit) //если натыкаемся на кредит
+                account.Activity += AddActivityToLogListAndBalanceLog; //и все счета подписываем на событие "Изменение баланса"
+                if (account is Credit) //если натыкаемся на кредит
                 {
-                    var clients = bank.Clients.Where(e => e.Id == account.ClientId); //то находим клиента - владельца кредита
-                    foreach(var client in clients)
+                    var clients = Clients.Where(e => e.Id == account.ClientId); //то находим клиента - владельца кредита
+                    foreach (var client in clients)
                     {
                         (account as Credit).CreditFinished += client.ChangeCreditRating; //и подписываем его на событие закрытия кредита
                     }
@@ -184,12 +109,21 @@ namespace BankModel_Library
             }
         }
 
-        public void SaveToJson(string Path)
+        /// <summary>
+        /// Обновляет коллекцию счетов банка из БД и подписывает их на события
+        /// </summary>
+        private void UpdateAccountsColFromDB()
         {
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All,  }; //в переменную с настройками для Json конвертера
-            //прописываем запись всех .NET типов имен (чтобы конвертер знал какой объект он конвертирует)
-            var json = JsonConvert.SerializeObject(this, settings); //сериализуем
-            File.WriteAllText(Path, json); //пишем в файл
+            Accounts = SQLAccountDB.GetAccounts();
+            SubscribeBankItemsToEvenst();
+        }
+
+        /// <summary>
+        /// Обновляет коллекцию клиентов банка из БД
+        /// </summary>
+        private void UpdateClientsColFromDB()
+        {
+            Clients = SQLClientDB.GetClients();
         }
         #endregion
 
@@ -211,13 +145,6 @@ namespace BankModel_Library
                 if (Name.ContainsChars(InvalidCharException.CharCollection)) throw new InvalidCharException(); 
                 //если находим - выбрасываем исключение
             }
-            // !!!Убрал обработку данного исключения из этого участка кода, т.к обработкой исключений теперь занимается UI, который
-            // подписан на событие BankException !!!
-            //catch (InvalidCharException Ex)
-            //{
-            //    ExceptionMessageBox Box = new ExceptionMessageBox(Ex);
-            //    BankException?.Invoke(Ex);
-            //} 
             catch (Exception Ex)
             {
                 BankException?.Invoke(Ex);
@@ -228,6 +155,7 @@ namespace BankModel_Library
                 this.Name = Name; //и присваиваем банку новое имя
             }
             Bank.BaseRate = BaseRate;
+            SQLBankSettings.UpdateBankSettingsInDB(this); //обновляем данные в БД
             return $"Наименоваение банка: {this.Name}. \nБазовая ставка: {Bank.BaseRate} %";
         }
         #endregion
@@ -241,8 +169,9 @@ namespace BankModel_Library
         /// <param name="Birthday">Дата рождения</param>
         public void AddNatural(string Name, string Surname, DateTime Birthday)
         {
-            Client Natural = new NaturalPerson(Name, Surname, Birthday); //создаем экземпляр физ лица
-            Clients.Add(Natural); //добавляем в коллекцию
+            NaturalPerson Natural = new NaturalPerson(Name, Surname, Birthday); //создаем экземпляр физ лица
+            SQLClientDB.AddNatural(Natural); //добавляем его в БД
+            UpdateClientsColFromDB(); //обновляем коллекцию клиентов из БД
         }
 
         /// <summary>
@@ -254,8 +183,9 @@ namespace BankModel_Library
         /// <param name="WorkPlace">Место работы</param>
         public void AddVIP(string Name, string Surname, DateTime Birthday, string WorkPlace)
         {
-            Client VIP = new VIP(Name, Surname, Birthday, WorkPlace); //создаем экземпляр ВИП клиента
-            Clients.Add(VIP); //добавляем в коллекцию
+            VIP VIP = new VIP(Name, Surname, Birthday, WorkPlace); //создаем экземпляр ВИП клиента
+            SQLClientDB.AddVIP(VIP); //добавляем его в БД
+            UpdateClientsColFromDB(); //обновляем коллекцию клиентов из БД
         }
 
         /// <summary>
@@ -265,8 +195,9 @@ namespace BankModel_Library
         /// <param name="Name">Наименование</param>
         public void AddCompany(string TypeOrg, string Name)
         {
-            Client Company = new Company(TypeOrg, Name); //создаем экземпляр юр. лица
-            Clients.Add(Company); //добавляем в коллекцию
+            Company Company = new Company(TypeOrg, Name); //создаем экземпляр юр. лица
+            SQLClientDB.AddCompany(Company); //добавляем его в БД
+            UpdateClientsColFromDB(); //обновляем коллекцию клиентов из БД
         }
 
         /// <summary>
@@ -283,9 +214,22 @@ namespace BankModel_Library
         public void EditClient<T>(T client, string Name, string Surname, DateTime Birthday, string WorkPlace, string TypeOrg, string NameOrg)
             where T : Client
         {
-            if (client.GetType() == typeof(NaturalPerson)) { (client as NaturalPerson).Edit(Name, Surname, Birthday); }
-            else if (client.GetType() == typeof(VIP)) { (client as VIP).Edit(Name, Surname, Birthday, WorkPlace); }
-            else if (client.GetType() == typeof(Company)) { (client as Company).Edit(TypeOrg, NameOrg); }
+            if (client.GetType() == typeof(NaturalPerson)) //если клиент - физ.лицо
+            { 
+                (client as NaturalPerson).Edit(Name, Surname, Birthday); //правим клиента
+                SQLClientDB.EditNatural(client as NaturalPerson); //обновляем его в БД
+            }
+            else if (client.GetType() == typeof(VIP)) //если клиент - VIP
+            { 
+                (client as VIP).Edit(Name, Surname, Birthday, WorkPlace); //правим клиента
+                SQLClientDB.EditVIP(client as VIP); //обновляем его в БД
+            }
+            else if (client.GetType() == typeof(Company)) //если клиент - юр.лицо
+            { 
+                (client as Company).Edit(TypeOrg, NameOrg); //правим клиента
+                SQLClientDB.EditCompany(client as Company); //обновляем его в БД
+            }
+            UpdateClientsColFromDB(); //обновляем коллекцию клиентов банка из БД
         }
         #endregion
 
@@ -294,12 +238,11 @@ namespace BankModel_Library
         /// Создает счет
         /// </summary>
         /// <param name="ClientId">Id клиента</param>
-        public void AddAccount(int ClientId, double Sum)
+        public void AddAccount(int ClientId)
         {
-            Sum = Math.Round(Sum, 2);
             Account account = new Account(ClientId, 0); //добавляем счет, привязывая его к клиентскому Id
-            account.Activity += this.AddActivityToLogList; //подписываем счет на событие Изменение баланса
-            Accounts.Add(account);
+            SQLAccountDB.AddCheckAccount(account); //добавляем счет в БД
+            UpdateAccountsColFromDB(); //обновляем коллекцию счетов банка из БД
         }
 
         /// <summary>
@@ -310,8 +253,14 @@ namespace BankModel_Library
         {
             foreach (var e in Accounts) //ищем счет в коллекции и закрываем его
             {
-                if (e.Id == AccountId && e.IsOpen == true) { e.IsOpen = false; break; }
+                if (e.Id == AccountId && e.IsOpen == true) 
+                { 
+                    e.IsOpen = false;
+                    SQLAccountDB.UpdateAccount(e); //обновляем счет в БД
+                    break; 
+                }
             }
+            UpdateAccountsColFromDB(); //обновляем коллекцию счетов банка из БД
         }
 
         /// <summary>
@@ -326,8 +275,8 @@ namespace BankModel_Library
         {
             DateTime EndDate = Today.AddMonths(duration); //рассчитываем дату окончания вклада
             Deposit deposit = new Deposit(client.Id, Sum, Percent, Capitalization, EndDate); //создаем экземпляр вклада
-            deposit.Activity += this.AddActivityToLogList; //подписываем счет на событие Изменение баланса
-            Accounts.Add(deposit); //добавляем его в коллекцию всех счетов
+            SQLAccountDB.AddDeposit(deposit); //добавляем его в БД
+            UpdateAccountsColFromDB();  //обновляем коллекцию счетов банка из БД
         }
 
         /// <summary>
@@ -342,9 +291,8 @@ namespace BankModel_Library
         {
             DateTime EndDate = Today.AddMonths(duration); //Рассчитываем дату окончания кредита
             Credit credit = new Credit(client.Id, StartBalance, Percent, EndDate, CreditSum); //создаем экземпляр кредита
-            credit.Activity += this.AddActivityToLogList; //подписываем счет на событие Изменение баланса - регистрируем AсtivityInfo
-            credit.CreditFinished += client.ChangeCreditRating; //подписываем счет на событие Закрытие кредита - редактируем кредитный рейтинг
-            Accounts.Add(credit); //добавляем в коллекцию всех счетов
+            SQLAccountDB.AddCredit(credit); //добавляем его в БД
+            UpdateAccountsColFromDB(); //обновляем коллекцию счетов банка из БД
         }
 
         /// <summary>
@@ -411,17 +359,33 @@ namespace BankModel_Library
             if (typeTransaction == Transaction.TypeTransaction.DepositPercent) //если транзакция - начисление процентов по вкладу
             {
                 Sum = (ToAccount as Deposit).CalculateInterest(Today); //считаем сумму начисленных процентов и если она не 0
-                if (Sum != 0) { Transactions.Add(new Transaction(typeTransaction, FromAccount, ToAccount, Sum)); } //то создаем транзакцию
+                if (Sum != 0) //то создаем транзакцию
+                {
+                    Transaction transaction = new Transaction(typeTransaction, FromAccount, ToAccount, Sum); //создаем транзакцию
+                    SQLAccountDB.UpdateAccount(ToAccount); //обновляем счет в БД
+                    SQLTransactionDB.AddTransaction(transaction); //добавляем транзакцию в БД
+                } 
             }
             else if (typeTransaction == Transaction.TypeTransaction.CreditPayment) //если транзакция - ежемесячный платеж по кредиту
             {
                 Sum = (FromAccount as Credit).CalculateInterest(Today);//рассчитываем размер платежа и если не ноль
-                if (Sum != 0) { Transactions.Add(new Transaction(typeTransaction, FromAccount, ToAccount, Sum)); } //проводим платеж
+                if (Sum != 0)  //проводим платеж
+                {
+                    Transaction transaction = new Transaction(typeTransaction, FromAccount, ToAccount, Sum); //создаем транзакцию
+                    SQLAccountDB.UpdateAccount(FromAccount); //обновляем счет в БД
+                    SQLTransactionDB.AddTransaction(transaction); //добавляем транзакцию в БД
+                } 
             }
             else //а во всех остальных случая сразу создаем транзакцию, в которой логика прописана внутри класса Transaction
             {
-                Transactions.Add(new Transaction(typeTransaction, FromAccount, ToAccount, Sum));
+                Transaction transaction = new Transaction(typeTransaction, FromAccount, ToAccount, Sum); //создаем транзакцию
+                if (FromAccount != null) SQLAccountDB.UpdateAccount(FromAccount); //если счет списания не нулл, то обновляем его в БД
+                if (ToAccount != null) SQLAccountDB.UpdateAccount(ToAccount); //если счет зачисления не нулл, то обновляем его в БД
+                SQLTransactionDB.AddTransaction(transaction); //добавляем транзакцию в БД
+                UpdateAccountsColFromDB(); //обновляем коллекцию счетов банка из БД
+                Transactions = SQLTransactionDB.GetAllTransactions(); //обновляем коллекцию транзакций банка из БД
             }
+            
         }
         #endregion
 
@@ -435,41 +399,56 @@ namespace BankModel_Library
             while (Today < NextToday) //увеличиваем значение Today до даты NextToday в цикле по одному дню
             {
                 Today = Today.AddDays(1); //плюс день
-                ChargeInterests(); //начисляем проценты по вкладам и кредитам
+                ChargeInterests(Accounts); //начисляем проценты по вкладам и кредитам
             }
+            UpdateAccountsColFromDB(); //обновляем коллекцию счетов из БД
+            Transactions = SQLTransactionDB.GetAllTransactions(); //обновляем коллекцию транзакций из БД
+            SQLBankSettings.UpdateBankSettingsInDB(this); //обновляем свойства банка в БД (прежде всего Today)
         }
 
         /// <summary>
         /// Начисляет процента по вкладам и кредитам на текущую дату Today
         /// </summary>
-        private void ChargeInterests()
+        private void ChargeInterests(ObservableCollection<Account> accounts)
         {
-            foreach (var account in Accounts) //в цикле перебираем все счета в банке
+            foreach (var account in accounts)
             {
-                if (account is Deposit) //если находим вклад, то начиcляем проценты по вкладу (создаем транзакцию)
-                {
-                    this.CreateTransaction(Transaction.TypeTransaction.DepositPercent, null, account, 0);
-                }
-                else if (account is Credit) //аналогично, если находим кредит
-                {
-                    this.CreateTransaction(Transaction.TypeTransaction.CreditPayment, account, null, 0);
-                }
+                if (account is Deposit) CreateTransaction(Transaction.TypeTransaction.DepositPercent, null, account, 0);
+                else if(account is Credit) CreateTransaction(Transaction.TypeTransaction.CreditPayment, account, null, 0);
             }
         }
         #endregion
 
         #region Методы, вызываемые событиями
         /// <summary>
-        /// Добавляет новый элемент ActivityInfo в коллекцию LogList
+        /// Добавляет новый элементы ActivityInfo и BalanceLog в БД
         /// </summary>
         /// <param name="sender">Отправитель события</param>
         /// <param name="e">Параметры активности(сообщение)</param>
-        private void AddActivityToLogList(object sender, ActivityInfo e)
+        private void AddActivityToLogListAndBalanceLog(object sender, ActivityInfo e)
         {
-            var send = sender as Account;
-            e.Message = $"Счет Id:{send.Id} сообщил: {e.Message}";
-            LogList.Add(e);
+            if (e.GetType() == typeof(ActivityInfo))
+            {
+                var send = sender as Account;
+                e.Message = $"Счет Id:{send.Id} сообщил: {e.Message}";
+                SQLActivityInfoDB.AddLogToDB(e);
+                LogList = SQLActivityInfoDB.GetLog();
+            }
+            else if (e.GetType() == typeof(BalanceLog))
+            {
+                SQLBalanceLogDB.AddBalanceLogToDB(e as BalanceLog);
+            }
         }
         #endregion
+
+        /// <summary>
+        /// Возвращает коллекцию BalanceLog из БД
+        /// </summary>
+        /// <param name="AccountId">Номер счета (Id)</param>
+        /// <returns>List<BalanceLog></returns>
+        public List<BalanceLog> GetBalanceLogs(int AccountId)
+        {
+            return SQLBalanceLogDB.GetLogCol(AccountId);
+        }
     }
 }

@@ -30,10 +30,6 @@ namespace BankMiniSystem
     {
         #region Поля и свойства
         /// <summary>
-        /// Блокировка. Если true - приложение при попытке его закрыть не закроется, false - закроется
-        /// </summary>
-        internal bool Blocked { get; set; }
-        /// <summary>
         /// Экземпляр банка
         /// </summary>
         internal Bank bank { get; set; }
@@ -73,8 +69,8 @@ namespace BankMiniSystem
         public MainWindow()
         {
             InitializeComponent();
-            bank = new Bank("Новый банк", 12);
-            bank.BankException += ExceptionHandler.Handler;
+            Bank.BankException += ExceptionHandler.Handler; //подписываемся на событие BankException
+            bank = new Bank(); //инициализируем экземпляр банка из БД
             naturals = new ObservableCollection<NaturalPerson>(); //инициализируем коллекции клиентов
             VIPs = new ObservableCollection<VIP>();
             companies = new ObservableCollection<Company>();
@@ -86,47 +82,11 @@ namespace BankMiniSystem
             CompaniesTable.ItemsSource = companies;
             AccountTable.ItemsSource = accounts; //и привязку счетов
             LogPanel.ItemsSource = activities;
-            this.Closing += MainWindow_Closed; //Метод, вызываемый при закрытии программы пользователем
             Refresh();
         }
         #endregion
 
         #region Вспомогательные методы
-        /// <summary>
-        /// Обрабатывает событие "закрытие программы"
-        /// </summary>
-        private void MainWindow_Closed(object sender, CancelEventArgs e)
-        {
-            if (Blocked) //если свойство блок - true - отменяем закрытие программы
-            {
-                e.Cancel = true;
-                MessageBox.Show("Закрытие программы невозможно - не завершены фоновые процессы. Попробуйте позже.",
-                    "Операция не выволнена!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            }
-            else //иначе выводим диалоговое окно
-            {
-                ///Создаем экземпляр MessageBox
-                var UserAnswer = MessageBox.Show("Сохранить изменения?",
-                                    $"Выход из программы {this.Title}",
-                                    MessageBoxButton.YesNoCancel,
-                                    MessageBoxImage.Question);
-
-                if (UserAnswer == MessageBoxResult.Yes) //если пользователь подтвердил сохранение
-                {
-                    bank.SaveToJson(@"base.json"); //сохраняем
-                    e.Cancel = false; //не отменяем закрытие программы
-                }
-                else if (UserAnswer == MessageBoxResult.No) //если пользователь подтвердил закрытие программы без сохранения
-                {
-                    e.Cancel = false; //закрываем программу
-                }
-                else //если пользователь отменил закрытие программы
-                {
-                    e.Cancel = true; //отменяем закрытие программы
-                }
-            }
-        }
-
         /// <summary>
         /// Обновление данных, отображаемых в MainWindow
         /// </summary>
@@ -139,7 +99,7 @@ namespace BankMiniSystem
             ViewService.CreateAccountCol(bank, accounts, client);
             ViewService.GetLogCollection(bank, activities);
             TodayBox.Text = $"Сегодня {Bank.Today.ToShortDateString()}";
-            Title = bank.Name.ToString();
+            if(bank.Name != null) Title = bank.Name.ToString();
         }
 
         /// <summary>
@@ -165,33 +125,6 @@ namespace BankMiniSystem
             else if (VIPTab.IsSelected && VIPsTable.SelectedItem is Client) { client = VIPsTable.SelectedItem as Client; }
             else if (CompanyTab.IsSelected && CompaniesTable.SelectedItem is Client) { client = CompaniesTable.SelectedItem as Client; }
         }
-
-        /// <summary>
-        /// Визуализирует Operation и Progress, а именно показывает, что в сторонних потоках (не в Application.Curent)
-        /// производятся какие-то действия и имитирует загрузку в прогрессбаре.
-        /// </summary>
-        /// <param name="OperationName">Информация о производимой в стороннем потоке операции</param>
-        private void Loading(string OperationName)
-        {
-            double maximum = 0; //переменная, которая будет хранить максимум Value элемента прогрессбар
-            Progress.Dispatcher.Invoke(new Action(() => maximum = Progress.Maximum)); //в потоке UI присваиваем переменной значение
-            Task.Factory.StartNew(() => //открываем новый поток
-            {
-                //В потоке IU асинхронно меняем значения Operation и Progress
-                Operation.Dispatcher.BeginInvoke(new Action(() => Operation.Text = OperationName));
-                for (int i = 0; Blocked; i++) //пока не изменится свойство Blocked увеличиваем значение Progress
-                {
-                    if (i < maximum - 10) Progress.Dispatcher.BeginInvoke(new Action(() => { Progress.Value++; }));
-                    Debug.WriteLine("+");
-                    Thread.Sleep(20);
-                }
-                //После изменения Blocked показываем максимальное значение Progress
-                Progress.Dispatcher.Invoke(new Action(() => Progress.Value = maximum));
-                Thread.Sleep(2000); //тормозим данный поток в Таске (важно, тормозим этот поток, но не поток UI, чтобы UI не зависал)
-                Progress.Dispatcher.Invoke(new Action(() => Progress.Value = 0)); //опустошаем прогрессбар
-                Operation.Dispatcher.BeginInvoke(new Action(() => Operation.Text = "готов")); //и выводим статус в Operation
-            });
-        }
         #endregion
 
         #region Главное меню программы
@@ -200,77 +133,9 @@ namespace BankMiniSystem
         /// </summary>
         internal void MenuItem_NewBank(object sender, RoutedEventArgs e)
         {
-            bank = new Bank("Новый банк", 12);
-            bank.BankException += ExceptionHandler.Handler; //подписываем новый экзепляр банка на событие BankException
+            bank = new Bank();
+            Bank.BankException += ExceptionHandler.Handler; //подписываем новый экзепляр банка на событие BankException
             Refresh();
-        }
-
-        /// <summary>
-        /// Открытие экземпляра Bank из Base.json + подписка на событие BankException
-        /// </summary>
-        internal void MenuItem_Open(object sender, RoutedEventArgs e)
-        {
-            //Создаем задачу загрузки банка из json
-            Task<Bank> LoadTask = Task<Bank>.Factory.StartNew(new Func<Bank>(() =>
-            {
-                Blocked = true; //Блокируем возможность закрытия приложения
-                Loading("загрузка"); //запускаем эмуляцию загрузки в прогрессбаре
-                return bank.LoadFromJson(@"base.json"); //загружаем банк с json
-            }));
-            //по окончании задачи по загрузки банка вызываем выполнение следующей задачи. В следующую задачу помещаем
-            //делегат Action<Task>, ему присваиваем лямбда-выражением анонимный метод, который присваивает свойству
-            //MainWindow.bank ссылку на загруженный банк. Затем вызываем метод Refresh() из MainWindow в потоке, в котором
-            //работает приложение. Это важно, т.к. ObservableCollection работает только в собственном потоке, т.к. имеет потокозащищенность
-            //и изменить ее в другом потоке нельзя.
-            LoadTask.ContinueWith(new Action<Task<Bank>>((task) =>
-            {
-                bank = (task as Task<Bank>).Result;
-                Application.Current.Dispatcher.Invoke(Refresh);
-                Blocked = false; //разблокируем возможность закрытия приложения
-            }));
-            bank.BankException += ExceptionHandler.Handler; //снова подписываем экзепляр банка на событие BankException, т.к.
-            //после загрузки с json bank имеет ссылку на новый экземпляр Bank(загруженный с json)
-        }
-
-        /// <summary>
-        /// Сохранение текущего bank в Base.Json
-        /// </summary>
-        private void MenuItem_Save(object sender, RoutedEventArgs e)
-        {
-            //Создаем задачу в асинхронном потоке для сохранения base.json
-            Task.Factory.StartNew(() =>
-            {
-                Blocked = true; //Блокируем возможность закрытия приложения
-                Loading("сохранение"); //запускаем эмуляцию загрузки в прогрессбаре
-                bank.SaveToJson(@"base.json"); //сохраняем в json в новом потоке
-                Blocked = false; //разблокируем возможность закрытия приложения
-            });
-        }
-
-        /// <summary>
-        /// Создание демонстрационного экземпляра Bank
-        /// </summary>
-        internal void MenuItem_Random(object sender, RoutedEventArgs e)
-        {
-            //Создаем задачу в новом асинхронном потоке, которая создает банк со случайными значениями для демонстрации
-            Task<Bank> СreateTask = Task<Bank>.Factory.StartNew(new Func<Bank>(() =>
-            {
-                Blocked = true; //Блокируем возможность закрытия приложения
-                Loading("загрузка"); //запускаем эмуляцию загрузки в прогрессбаре
-                return RandomBank.CreateRandomBank(); //создаем новый банк со случайными значениями
-            }));
-            //по окончании задачи по созданию случайного банка вызываем выполнение следующей задачи. В следующую задачу помещаем
-            //делегат Action<Task>, ему присваиваем лямбда-выражением анонимный метод, который присваивает свойству
-            //MainWindow.bank ссылку на созданный случайный банк. Затем вызываем метод Refresh() из MainWindow в потоке, в котором
-            //работает приложение. Это важно, т.к. ObservableCollection работает только в собственном потоке, т.к. имеет потокозащищенность
-            //и изменить ее в другом потоке нельзя.
-            СreateTask.ContinueWith(new Action<Task>
-            ((task) => {
-                bank = (task as Task<Bank>).Result;
-                Application.Current.Dispatcher.Invoke(new Action(Refresh));
-                Blocked = false;
-            }));
-            bank.BankException += ExceptionHandler.Handler; //подписываем новый экзепляр банка на событие BankException
         }
 
         /// <summary>
@@ -317,7 +182,7 @@ namespace BankMiniSystem
             SelectClient();
             if (client != null) //если клиент был выбран, то
             {
-                bank.AddAccount(client.Id, 0);
+                bank.AddAccount(client.Id);
                 Refresh();
             }
         }
@@ -448,7 +313,7 @@ namespace BankMiniSystem
         {
             if (AccountTable.SelectedItem as Account != null)
             {
-                BalanceHistogram balanceHistogram = new BalanceHistogram(AccountTable.SelectedItem as Account);
+                BalanceHistogram balanceHistogram = new BalanceHistogram(bank.GetBalanceLogs((AccountTable.SelectedItem as Account).Id));
                 balanceHistogram.Owner = this;
                 balanceHistogram.Show();
             }

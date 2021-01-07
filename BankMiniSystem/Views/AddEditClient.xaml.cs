@@ -43,6 +43,7 @@ namespace BankMiniSystem.Views
         /// </summary>
         private void PreparingFieldsForEdit()
         {
+            Title = "Редактировать клиента";
             RadioButtonClient.Visibility = Visibility.Hidden;
             if (selectedClient.GetType() == typeof(NaturalPerson))
             {
@@ -155,7 +156,7 @@ namespace BankMiniSystem.Views
                 { main.bank.AddNatural(NameBox.Text, SurnameBox.Text, BirthdayBox.SelectedDate.Value); }
                 else if (VIPcheck.IsChecked == true)
                 { main.bank.AddVIP(NameBox.Text, SurnameBox.Text, BirthdayBox.SelectedDate.Value, WorkPlaceBox.Text); }
-                else if (CompanyCheck.IsChecked == true) { main.bank.AddCompany(TypeOrgBox.Text, NameBox.Text); }
+                else if (CompanyCheck.IsChecked == true) { main.bank.AddCompany(TypeOrgBox.Text, NameOrgBox.Text); }
             }
             else //или правим существующего
             {
