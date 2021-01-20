@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8F9E18E4-D5EA-491B-8219-B7ECF5CE0BE5}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
+		bin\Debug\Rules.txt = bin\Debug\Rules.txt
 	EndProjectSection
 EndProject
 Global
