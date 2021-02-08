@@ -15,63 +15,63 @@ namespace BankMiniSystem.Services
     /// </summary>
     class ViewService
     {
-        /// <summary>
-        /// Наполняет переданную коллекцию clients экземплярами <T> из коллекции bank.clients
-        /// </summary>
-        /// <typeparam name="T">Унаследованный от Client класс</typeparam>
-        /// <param name="bank">Экземпляр банка, хранящий всех клиентов в коллекции bank.clients</param>
-        /// <param name="clients">Коллекция клиентов, которую необходимо наполнить экземплярами T из коллекции bank.clients</param>
-        internal static void CreateClientCol<T>(Bank bank, ObservableCollection<T> clients)
-            where T : Client
-        {
-            if (bank != null) //проверка, что переданный экземпляр банка не нул
-            {
-                clients.Clear(); //очищаем коллекцию
-                foreach (var client in bank.Clients) //собираем коллекцию
-                {
-                    if (client.GetType() == typeof(T)) { clients.Add((T)client); } //добавляем в нее экземпляры с типом T
-                }
-            }
-        }
+        ///// <summary>
+        ///// Наполняет переданную коллекцию clients экземплярами <T> из коллекции bank.clients
+        ///// </summary>
+        ///// <typeparam name="T">Унаследованный от Client класс</typeparam>
+        ///// <param name="bank">Экземпляр банка, хранящий всех клиентов в коллекции bank.clients</param>
+        ///// <param name="clients">Коллекция клиентов, которую необходимо наполнить экземплярами T из коллекции bank.clients</param>
+        //internal static void CreateClientCol<T>(Bank bank, ObservableCollection<T> clients)
+        //    where T : Client
+        //{
+        //    if (bank != null) //проверка, что переданный экземпляр банка не нул
+        //    {
+        //        clients.Clear(); //очищаем коллекцию
+        //        foreach (var client in bank.Db_Clients) //собираем коллекцию
+        //        {
+        //            if (client.GetType() == typeof(T)) { clients.Add((T)client); } //добавляем в нее экземпляры с типом T
+        //        }
+        //    }
+        //}
 
-        /// <summary>
-        /// Наполняет переданную коллекцию account экземплярами <T> из коллекции bank.accounts, принадлежащих client
-        /// </summary>
-        /// <typeparam name="T">Унаследованный от Account класс</typeparam>
-        /// <param name="bank">Экземпляр банка, хранящий все счета в коллекции bank.accounts</param>
-        /// <param name="accounts">Коллекция счетов, которую необходимо наполнить</param>
-        /// <param name="client">Экземпляр клиента, для которого необходимо найти все счета</param>
-        internal static void CreateAccountCol<T>(Bank bank, ObservableCollection<T> accounts, Client client)
-            where T : Account
-        {
-            if (bank != null && client != null)
-            {
-                accounts?.Clear();
-                foreach (var account in bank.Accounts)
-                {
-                    if (account.ClientId == client.Id) { accounts.Add((T)account); }
-                }
-            }
-        }
+        ///// <summary>
+        ///// Наполняет переданную коллекцию account экземплярами <T> из коллекции bank.accounts, принадлежащих client
+        ///// </summary>
+        ///// <typeparam name="T">Унаследованный от Account класс</typeparam>
+        ///// <param name="bank">Экземпляр банка, хранящий все счета в коллекции bank.accounts</param>
+        ///// <param name="accounts">Коллекция счетов, которую необходимо наполнить</param>
+        ///// <param name="client">Экземпляр клиента, для которого необходимо найти все счета</param>
+        //internal static void CreateAccountCol<T>(Bank bank, ObservableCollection<T> accounts, Client client)
+        //    where T : Account
+        //{
+        //    if (bank != null && client != null)
+        //    {
+        //        accounts?.Clear();
+        //        foreach (var account in bank.Db_Accounts)
+        //        {
+        //            if (account.ClientId == client.Id) { accounts.Add((T)account); }
+        //        }
+        //    }
+        //}
 
-        /// <summary>
-        /// Наполняет переданную коллекцию account экземплярами из коллекции bank.accounts, принадлежащих client
-        /// Имеющих статус Open и без классов наследников (без кредитов и вкладов)
-        /// </summary>
-        /// <param name="bank">Экземпляр банка, хранящий все счета в коллекции bank.accounts</param>
-        /// <param name="accounts">Коллекция счетов, которую необходимо наполнить</param>
-        /// <param name="client">Экземпляр клиента, для которого необходимо найти все открытые счета</param>
-        internal static void CreateOpenAccountCol(Bank bank, ObservableCollection<Account> accounts, Client client)
-        {
-            if (bank != null && client != null)
-            {
-                accounts?.Clear();
-                foreach (var account in bank.Accounts)
-                {
-                    if (account.ClientId == client.Id && account.IsOpen && account.GetType() == typeof(Account)) { accounts.Add(account); }
-                }
-            }
-        }
+        ///// <summary>
+        ///// Наполняет переданную коллекцию account экземплярами из коллекции bank.accounts, принадлежащих client
+        ///// Имеющих статус Open и без классов наследников (без кредитов и вкладов)
+        ///// </summary>
+        ///// <param name="bank">Экземпляр банка, хранящий все счета в коллекции bank.accounts</param>
+        ///// <param name="accounts">Коллекция счетов, которую необходимо наполнить</param>
+        ///// <param name="client">Экземпляр клиента, для которого необходимо найти все открытые счета</param>
+        //internal static void CreateOpenAccountCol(Bank bank, ObservableCollection<Account> accounts, Client client)
+        //{
+        //    if (bank != null && client != null)
+        //    {
+        //        accounts?.Clear();
+        //        foreach (var account in bank.Db_Accounts)
+        //        {
+        //            if (account.ClientId == client.Id && account.IsOpen && account.GetType() == typeof(Account)) { accounts.Add(account); }
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Проверяет добавляемый символ к переменной TextInField:
@@ -104,29 +104,30 @@ namespace BankMiniSystem.Services
             return NotValidate;
         }
 
-        /// <summary>
-        /// Возвращает коллекцию всех транзакций по счету account
-        /// </summary>
-        /// <param name="bank">Экземпляр Bank, хранящий коллекцию всех транзакций</param>
-        /// <param name="account">Счет, по которому необходимо вывести все транзакции</param>
-        /// <returns>ObservableCollection<Transaction></returns>
-        public static ObservableCollection<Transaction> GetTransactionsOfAccount(Bank bank, Account account)
-        {
-            ObservableCollection<Transaction> transactions = new ObservableCollection<Transaction>();
-            foreach(var e in bank.Transactions)
-            {
-                if(e.FromAccount == account.Id || e.ToAccount == account.Id) { transactions.Add(e); }
-            }
-            return transactions;
-        }
+        ///// <summary>
+        ///// Возвращает коллекцию всех транзакций по счету account
+        ///// </summary>
+        ///// <param name="bank">Экземпляр Bank, хранящий коллекцию всех транзакций</param>
+        ///// <param name="account">Счет, по которому необходимо вывести все транзакции</param>
+        ///// <returns>ObservableCollection<Transaction></returns>
+        //public static ObservableCollection<Transaction> GetTransactionsOfAccount(Bank bank, Account account)
+        //{
+        //    ObservableCollection<Transaction> transactions = new ObservableCollection<Transaction>();
+        //    foreach(var e in bank.Db_Transactions)
+        //    {
+        //        if(e.FromAccount == account.Id || e.ToAccount == account.Id) { transactions.Add(e); }
+        //    }
+        //    return transactions;
+        //}
 
-        public static void GetLogCollection(Bank bank, ObservableCollection<ActivityInfo> activities)
-        {
-            activities?.Clear();
-            foreach(var act in bank.LogList)
-            {
-                activities.Add(act);
-            }
-        }
+
+        //public static void GetLogCollection(Bank bank, ObservableCollection<ActivityInfo> activities)
+        //{
+        //    activities?.Clear();
+        //    foreach(var act in bank.Db_Activities)
+        //    {
+        //        activities.Add(act);
+        //    }
+        //}
     }
 }

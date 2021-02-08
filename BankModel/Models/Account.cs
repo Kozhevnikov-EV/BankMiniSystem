@@ -26,12 +26,12 @@ namespace BankModel_Library
         /// <summary>
         /// Номер счета
         /// </summary>
-        public int Id { get; }
+        public int Id { get; private set; }
 
         /// <summary>
         /// Id владельца счета
         /// </summary>
-        public int ClientId { get; }
+        public int ClientId { get; private set; }
 
         /// <summary>
         /// Поле статус счета (открыт - true)
@@ -76,7 +76,7 @@ namespace BankModel_Library
         /// <summary>
         /// Дата открытия вклада
         /// </summary>
-        public DateTime OpenDate { get; }
+        public DateTime OpenDate { get; private set; }
 
         /// <summary>
         /// Поле текущий баланс счета
@@ -95,26 +95,6 @@ namespace BankModel_Library
         #endregion
 
         #region Конструкторы
-        /// <summary>
-        /// Констуктор для SQL (с прямым присвоение Id из БД)
-        /// </summary>
-        /// <param name="Id"></param>
-        /// <param name="ClientId"></param>
-        /// <param name="IsOpen"></param>
-        /// <param name="IsRefill"></param>
-        /// <param name="IsWithdrawal"></param>
-        /// <param name="OpenDate"></param>
-        /// <param name="Balance"></param>
-        public Account(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance)
-        {
-            this.Id = Id;
-            this.ClientId = ClientId;
-            isOpen = IsOpen;
-            this.IsRefill = IsRefill;
-            this.IsWithdrawal = IsWithdrawal;
-            this.OpenDate = OpenDate;
-            this.balance = Balance;
-        }
 
         /// <summary>
         /// Базовый конструктор (без присвоения Id)
@@ -130,6 +110,11 @@ namespace BankModel_Library
             Balance = Math.Round(StartBalance, 2);
             OpenDate = Bank.Today;
         }
+
+        /// <summary>
+        /// Конструктор для EF
+        /// </summary>
+        protected Account() { }
         #endregion
 
         #region Методы

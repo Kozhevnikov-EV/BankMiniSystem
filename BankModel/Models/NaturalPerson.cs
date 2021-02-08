@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace BankModel_Library
     /// <summary>
     /// Класс Физ. лицо (наследник класса Client)
     /// </summary>
+    [Table("NaturalPersons")]
     public class NaturalPerson : Client, IClient
     {
         #region Поля и свойства
@@ -31,6 +33,11 @@ namespace BankModel_Library
 
         #region Конструкторы и методы
         /// <summary>
+        /// Конструктор для EF
+        /// </summary>
+        private NaturalPerson() { }
+
+        /// <summary>
         /// Базовый конструктор (без присвоения Id)
         /// </summary>
         /// <param name="Name">Имя</param>
@@ -38,22 +45,6 @@ namespace BankModel_Library
         /// <param name="Birthday">Дата рождения</param>
         public NaturalPerson(string Name, string Surname, DateTime Birthday)
             : base()
-        {
-            this.Name = Name;
-            this.Surname = Surname;
-            this.Birthday = Birthday;
-        }
-
-        /// <summary>
-        /// Конструктор для SQL (прямое присвоение Id из БД)
-        /// </summary>
-        /// <param name="Id">Id</param>
-        /// <param name="CreditRating">Кредитный рейтинг</param>
-        /// <param name="Name">Имя</param>
-        /// <param name="Surname">Фамилия</param>
-        /// <param name="Birthday">Дата рождения</param>
-        public NaturalPerson(int Id, int CreditRating, string Name, string Surname, DateTime Birthday)
-            : base(Id, CreditRating)
         {
             this.Name = Name;
             this.Surname = Surname;

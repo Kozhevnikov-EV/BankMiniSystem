@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace BankModel_Library
     /// <summary>
     /// Класс Company (наследник класса Client)
     /// </summary>
+    [Table("Companies")]
     public class Company : Client, IClient
     {
         #region Поля и свойства
@@ -26,26 +28,17 @@ namespace BankModel_Library
 
         #region Конструкторы и методы
         /// <summary>
+        /// Конструктор для EF
+        /// </summary>
+        private Company() { }
+
+        /// <summary>
         /// Базовый конструктор (без присвоения Id)
         /// </summary>
         /// <param name="TypeOrg">Тип организации</param>
         /// <param name="Name">Наименование</param>
         public Company(string TypeOrg, string Name)
             : base()
-        {
-            this.TypeOrg = TypeOrg;
-            this.Name = Name;
-        }
-
-        /// <summary>
-        /// Конструктор для SQL (прямое присвоение Id из БД)
-        /// </summary>
-        /// <param name="Id">Id</param>
-        /// <param name="CreditRating">Кредитный рейтинг</param>
-        /// <param name="TypeOrg">Тип организации</param>
-        /// <param name="Name">Наименование</param>
-        public Company(int Id, int CreditRating, string TypeOrg, string Name)
-            : base(Id, CreditRating)
         {
             this.TypeOrg = TypeOrg;
             this.Name = Name;

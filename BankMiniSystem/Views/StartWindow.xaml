@@ -17,8 +17,8 @@
     <Grid>
         <StackPanel>
             <Image Source="logo.JPG"/>
-            <Button Content="Подключиться к MS SQl" Click="Button_ConnectToDB"/>
-            <Button Content="Выход" Click="Button_Exit"/>
+            <Button x:Name="StartBtn" Content="Запустить приложение" Click="Button_ConnectToDB"/>
+            <Button x:Name="ExitBtn" Content="Выход" Click="Button_Exit"/>
         </StackPanel>
     </Grid>
 </Window>

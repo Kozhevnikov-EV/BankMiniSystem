@@ -27,39 +27,7 @@ namespace BankModel_Library
         /// <summary>
         /// Делегат - обработчик транзакции, содержит методы работы со счетами для конкретного экземпляра Transaction
         /// </summary>
-        [JsonIgnore]
         public Func<double, int, bool> TransactionHandler;
-
-        #region Статичное поле, конструктор и метод для получения Id экземпляра Transaction
-        /// <summary>
-        /// Статическое поле для staticId
-        /// </summary>
-        [JsonProperty]
-        private static int staticId;
-
-        /// <summary>
-        /// Статичный конструктор для инициализации staticId
-        /// </summary>
-        static Transaction()
-        {
-            staticId = 0;
-        }
-
-        /// <summary>
-        /// Статический метод для получения следущего Id
-        /// </summary>
-        /// <returns>Id</returns>
-        private static int NextId()
-        {
-            staticId++;
-            return staticId;
-        }
-
-        public static void ResetStaticId()
-        {
-            staticId = 0;
-        }
-        #endregion
 
         #region Поля и свойства
         /// <summary>
@@ -92,26 +60,22 @@ namespace BankModel_Library
         /// </summary>
         public double Sum { get; private set; }
 
+        /// <summary>
+        /// Статус транзакции. True - выполнена
+        /// </summary>
         public bool Status { get; private set; }
 
+        /// <summary>
+        /// Текстовый статус транзакции
+        /// </summary>
         public string TextStatus { get { return Status ? "Выполнена" : "Не выполнена"; } }
         #endregion
 
         #region Конструкторы
         /// <summary>
-        /// Конструктор для Json + SQL
+        /// Конструктор для EF
         /// </summary>
-        [JsonConstructor]
-        public Transaction(int Id, string Name, DateTime Date, int FromAccount, int ToAccount, double Sum, bool Status)
-        {
-            this.Id = Id;
-            this.Name = Name;
-            this.Date = Date;
-            this.FromAccount = FromAccount;
-            this.ToAccount = ToAccount;
-            this.Sum = Sum;
-            this.Status = Status;
-        }
+        private Transaction() { }
 
         /// <summary>
         /// Базовый конструктор
@@ -122,7 +86,7 @@ namespace BankModel_Library
         /// <param name="sum">Сумма перевода</param>
         public Transaction(TypeTransaction typeTransaction, Account fromAccount, Account toAccount, double sum)
         {
-            Id = NextId();
+            //Id = NextId();
             Date = Bank.Today;
             Sum = Math.Round(sum, 2);
             Status = false;

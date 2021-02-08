@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace BankModel_Library
     /// <summary>
     /// Класс Вклад (наследник Account)
     /// </summary>
+    [Table("Deposits")]
     public class Deposit : Account, IAccount
     {
         #region Поля и свойства
@@ -95,6 +97,11 @@ namespace BankModel_Library
 
         #region Конструкторы
         /// <summary>
+        /// Конструктор для EF
+        /// </summary>
+        private Deposit() { }
+
+        /// <summary>
         /// Основной конструктор для создания экземпляра класса Deposit (без присвоения Id)
         /// </summary>
         /// <param name="clientId">Id клиента - владельца</param>
@@ -112,9 +119,9 @@ namespace BankModel_Library
             EndDate = endDate;
             IsActive = true;
             IsRefill = false;
-            if(Capitalization) //отдельная логика, если класс с капитализацией процентов
+            PreviousCapitalization = OpenDate;
+            if (Capitalization) //отдельная логика, если класс с капитализацией процентов
             {
-                PreviousCapitalization = OpenDate;
                 CapitalizationDates = new Queue<DateTime>(); //заполняем коллекцию датами капитализации процентов по вкладу
                 DateTime NextCapitalization = OpenDate;
                 do
@@ -123,27 +130,6 @@ namespace BankModel_Library
                     CapitalizationDates.Enqueue(NextCapitalization);
                 } while (NextCapitalization <= EndDate);
             }
-        }
-
-        /// <summary>
-        /// Конструктор для SQL (прямое присвоение Id из БД)
-        /// </summary>
-        public Deposit(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance, double Percent,
-          bool Capitalization, DateTime EndDate, DateTime PreviousCapitalization, bool IsActive)
-            : base(Id, ClientId, IsOpen, IsRefill, IsWithdrawal, OpenDate, Balance)
-        {
-            this.Percent = Percent;
-            this.Capitalization = Capitalization;
-            this.EndDate = EndDate;
-            this.PreviousCapitalization = PreviousCapitalization;
-            this.CapitalizationDates = new Queue<DateTime>();
-            DateTime NextCapitalization = PreviousCapitalization;
-            do
-            {
-                NextCapitalization = NextCapitalization.AddMonths(1);
-                CapitalizationDates.Enqueue(NextCapitalization);
-            } while (NextCapitalization <= EndDate);
-            this.IsActive = IsActive;
         }
         #endregion
 
@@ -156,6 +142,8 @@ namespace BankModel_Library
         public double CalculateInterest(DateTime dateTime)
         {
             double Sum = 0;
+            //если вклад с капитализацией и коллекция дат начисления процента пуста, то создаем ее
+            if (Capitalization && CapitalizationDates == null) GenerateCapitalizationDates();
             if (this.IsOpen) //проверяем, что вклад открыт
             {
                 if (!Capitalization && dateTime >= EndDate && IsActive) //если вклад с без капитализации
@@ -185,6 +173,17 @@ namespace BankModel_Library
                 Sum = Math.Round(Balance / 100 * Percent, 2);
             }
             return Sum;
+        }
+
+        private void GenerateCapitalizationDates()
+        {
+            CapitalizationDates = new Queue<DateTime>();
+            DateTime NextCapitalization = PreviousCapitalization;
+            do
+            {
+                NextCapitalization = NextCapitalization.AddMonths(1);
+                CapitalizationDates.Enqueue(NextCapitalization);
+            } while (NextCapitalization <= EndDate);
         }
 
         /// <summary>

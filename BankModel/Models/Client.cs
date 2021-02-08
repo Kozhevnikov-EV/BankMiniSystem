@@ -40,21 +40,13 @@ namespace BankModel_Library
         #endregion
 
         #region Конструкторы
+
         /// <summary>
         /// Базовый коструктор
         /// </summary>
         public Client()
         {
             CreditRating = 0;
-        }
-
-        /// <summary>
-        /// Конструктор для SQL (с прямым присвоением Id из БД)
-        /// </summary>
-        protected Client(int Id, int CreditRating)
-        {
-            this.Id = Id;
-            this.CreditRating = CreditRating;
         }
         #endregion
 

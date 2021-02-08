@@ -38,8 +38,8 @@ namespace BankMiniSystem.Views
             main = window;
             senderAccounts = new ObservableCollection<Account>(); //инициализируем коллекции счетов
             recipientAccounts = new ObservableCollection<Account>();
-            SenderBox.ItemsSource = main.bank.Clients; //привязываем всех клиентов к комбобоксу
-            RecipientBox.ItemsSource = main.bank.Clients; //аналогично
+            SenderBox.ItemsSource = main.bank.GetAllClients(); //привязываем всех клиентов к комбобоксу
+            RecipientBox.ItemsSource = main.bank.GetAllClients(); //аналогично
             SenderAccountsTable.ItemsSource = senderAccounts; //привязываем счета списания к списку счетов списания
             RecipientAccountsTable.ItemsSource = recipientAccounts; //и к списку счетов зачисления
             GetAnnotation(); //подгружаем аннотацию к TextBlock
@@ -63,7 +63,7 @@ namespace BankMiniSystem.Views
         /// </summary>
         private void SenderBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ViewService.CreateAccountCol<Account>(main.bank, senderAccounts, SenderBox.SelectedItem as Client);
+            main.bank.CreateAccountCol<Account>(senderAccounts, SenderBox.SelectedItem as Client);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace BankMiniSystem.Views
         /// </summary>
         private void RecipientBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ViewService.CreateAccountCol<Account>(main.bank, recipientAccounts, RecipientBox.SelectedItem as Client);
+            main.bank.CreateAccountCol<Account>(recipientAccounts, RecipientBox.SelectedItem as Client);
         }
 
         /// <summary>
@@ -97,9 +97,8 @@ namespace BankMiniSystem.Views
         {
             if (SelectSenderAccount.DataContext != null && SelectRecipientAccount.DataContext != null)
             {
-                main.bank.CreateTransaction(Transaction.TypeTransaction.CashlessTransfer,
-                    (SelectSenderAccount.DataContext as Account), (SelectRecipientAccount.DataContext as Account), Convert.ToDouble(Sum.Text));
-                //MessageBox.Show(Result, "Отчет о транзакции", MessageBoxButton.OK, MessageBoxImage.Information);
+                main.bank.CreateTransaction(Transaction.TypeTransaction.CashlessTransfer, (SelectSenderAccount.DataContext as Account),
+                    (SelectRecipientAccount.DataContext as Account), Convert.ToDouble(Sum.Text));
             }
             main.Refresh();
             Close();

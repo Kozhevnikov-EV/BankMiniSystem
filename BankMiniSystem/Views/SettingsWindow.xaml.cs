@@ -35,7 +35,6 @@ namespace BankMiniSystem.Views
             main = window;
             NameBox.Text = main.bank.Name;
             PercentBox.Text = Bank.BaseRate.ToString();
-            char[] WE = new char[0];
             CharBox.Text = InvalidCharException.CharCollection.ToStringOrEmpty();
             PercentBox.PreviewTextInput += new TextCompositionEventHandler(textBox_PreviewTextInput); //обработка вводимых символов в базовую ставку
         }

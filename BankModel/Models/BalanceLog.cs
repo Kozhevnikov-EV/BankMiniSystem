@@ -4,16 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankModel_Library
 {
     /// <summary>
     /// Класс, наследник ActivityInfo, экземпляры которого отображают состояние баланса экземпляра Account на дату
     /// </summary>
+    [Table("BalanceLogs")]
     public class BalanceLog : ActivityInfo, IComparable<BalanceLog>, ICloneable
     {
         #region Свойства
-        public int AccountId { get; }
+        public int AccountId { get; set; }
         
         /// <summary>
         /// Баланс
@@ -23,7 +25,7 @@ namespace BankModel_Library
         /// <summary>
         /// Id транзакции, на основании которой баланс счета принял значение Balance
         /// </summary>
-        public int TransactionId { get; }
+        public int TransactionId { get; set; }
 
         /// <summary>
         /// Переопределенное свойство класса ActivityInfo. В данном классе содержит тектовое значение свойтсва Balance
@@ -32,6 +34,11 @@ namespace BankModel_Library
         #endregion
 
         #region Конструкторы
+        /// <summary>
+        /// Конструктор для EF
+        /// </summary>
+        protected BalanceLog() { }
+
         /// <summary>
         /// Основной конструктор
         /// </summary>
@@ -52,20 +59,8 @@ namespace BankModel_Library
         /// <param name="date">Дата</param>
         /// <param name="balance">Баланс</param>
         /// <param name="transationId">Id транзакции</param>
-        [JsonConstructor]
-        public BalanceLog(DateTime date, int accountId, double balance, int transationId)
+        private BalanceLog(DateTime date, int accountId, double balance, int transationId)
             : base(date, balance.ToString())
-        {
-            AccountId = accountId;
-            Balance = balance;
-            TransactionId = transationId;
-        }
-
-        /// <summary>
-        /// SQL
-        /// </summary>
-        public BalanceLog(DateTime date, int accountId, string Message, double balance, int transationId)
-            : base(date, Message)
         {
             AccountId = accountId;
             Balance = balance;

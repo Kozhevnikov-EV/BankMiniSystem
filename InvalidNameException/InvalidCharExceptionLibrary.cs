@@ -41,6 +41,16 @@ namespace InvalidCharException_Library
             return SB.ToString();
         }
 
+        //public static void SetIllegalChars(char[] IllegalChars)
+        //{
+        //    InvalidCharException_Library.InvalidCharException.CharCollection = IllegalChars;
+        //}
+
+        //public static void SetIllegalChars(string IllegalChars)
+        //{
+        //    InvalidCharException_Library.InvalidCharException.CharCollection = IllegalChars.ToCharArray();
+        //}
+
 
     }
 }

@@ -31,7 +31,7 @@ namespace BankMiniSystem.Views
             InitializeComponent();
             main = window;
             AccountsCol = new ObservableCollection<Account>(); //инициализируем коллекцию счетов
-            ViewService.CreateOpenAccountCol(main.bank, AccountsCol, client); //наполняем коллекцию счетов
+            main.bank.CreateOpenAccountCol(AccountsCol, client); //наполняем коллекцию счетов
             AccountBox1.ItemsSource = AccountsCol; //привязываем коллекции счетов к комбобоксам
             AccountBox2.ItemsSource = AccountsCol;
         }

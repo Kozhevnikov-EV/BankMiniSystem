@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace BankModel_Library
     /// <summary>
     /// Класс Кредит (наследник Account)
     /// </summary>
+    [Table("Credits")]
     public class Credit : Account, IAccount
     {
         #region Поля и свойства + Событие
@@ -26,12 +28,12 @@ namespace BankModel_Library
         /// <summary>
         /// Установленный процент по кредиту (годовой)
         /// </summary>
-        public double Percent { get; }
+        public double Percent { get; private set; }
 
         /// <summary>
         /// Сумма, полученная клиентом по кредиту (стартовая сумма основного долга)
         /// </summary>
-        public double StartDebt { get; }
+        public double StartDebt { get; private set; }
 
         /// <summary>
         /// Текущий размер основного долга
@@ -41,12 +43,12 @@ namespace BankModel_Library
         /// <summary>
         /// Ежемесячный платеж для погашения основного долга (без учета начисленных процентов)
         /// </summary>
-        public double MonthlyPayment { get; }
+        public double MonthlyPayment { get; private set; }
 
         /// <summary>
         /// Дата окончания срока действия
         /// </summary>
-        public DateTime EndDate { get; }
+        public DateTime EndDate { get; private set; }
 
         /// <summary>
         /// Дата предыдущего списания процентов
@@ -109,6 +111,11 @@ namespace BankModel_Library
 
         #region Конструкторы
         /// <summary>
+        /// Конструктор для EF
+        /// </summary>
+        private Credit() { }
+
+        /// <summary>
         /// Основной конструктор экземпляра Credit (Без присвоения Id)
         /// </summary>
         /// <param name="clientId">Id владельца счета</param>
@@ -141,32 +148,6 @@ namespace BankModel_Library
             //расчитываем размер ежемесячного погашения основного долга
             MonthlyPayment = StartDebt / CapitalizationDates.Count;
         }
-
-        /// <summary>
-        /// Конструктор для SQL (с прямым присовоением Id из БД)
-        /// </summary>
-        public Credit(int Id, int ClientId, bool IsOpen, bool IsRefill, bool IsWithdrawal, DateTime OpenDate, double Balance, double Percent,
-                DateTime EndDate, DateTime PreviousCapitalization, bool IsActive, double StartDebt,
-                double CurentDebt, double MonthlyPayment, bool WithoutNegativeBalance)
-                : base(Id, ClientId, IsOpen, IsRefill, IsWithdrawal, OpenDate, Balance)
-        {
-            this.Percent = Percent;
-            this.EndDate = EndDate;
-            this.PreviousCapitalization = PreviousCapitalization;
-            this.CapitalizationDates = CapitalizationDates;
-            this.IsActive = IsActive;
-            this.StartDebt = StartDebt;
-            this.CurentDebt = CurentDebt;
-            this.MonthlyPayment = MonthlyPayment;
-            this.WithoutNegativeBalance = WithoutNegativeBalance;
-            CapitalizationDates = new Queue<DateTime>();
-            DateTime NextCapitalization = PreviousCapitalization;
-            do
-            {
-                NextCapitalization = NextCapitalization.AddMonths(1);
-                CapitalizationDates.Enqueue(NextCapitalization);
-            } while (NextCapitalization < EndDate);
-        }
         #endregion
 
         #region Методы
@@ -179,6 +160,7 @@ namespace BankModel_Library
         public double CalculateInterest(DateTime dateTime)
         {
             double Sum = 0;
+            if (CapitalizationDates == null) GenerateCapitalizationDates();
             if (this.IsOpen && IsActive && dateTime >= CapitalizationDates.Peek())
             {
                 double ActualPercent = Percent / 12; //процент за месяц
@@ -187,6 +169,17 @@ namespace BankModel_Library
                 PreviousCapitalization = CapitalizationDates.Dequeue(); //обновляем дату последнего списания процентов и удаляем ее из очереди
             }
             return Sum;
+        }
+
+        private void GenerateCapitalizationDates()
+        {
+            CapitalizationDates = new Queue<DateTime>();
+            DateTime NextCapitalization = PreviousCapitalization;
+            do
+            {
+                NextCapitalization = NextCapitalization.AddMonths(1);
+                CapitalizationDates.Enqueue(NextCapitalization);
+            } while (NextCapitalization <= EndDate);
         }
         #endregion
     }

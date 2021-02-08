@@ -12,10 +12,12 @@ namespace BankModel_Library
     /// </summary>
     public class ActivityInfo
     {
+        public int Id { get; private set; }
+
         /// <summary>
         /// Дата
         /// </summary>
-        public DateTime Date { get; }
+        public DateTime Date { get; private set; }
 
         /// <summary>
         /// Информационное сообщение
@@ -33,13 +35,17 @@ namespace BankModel_Library
         }
 
         /// <summary>
-        /// Конструктор для Json + SQL
+        /// Конструктор c произвольным присвоением даты (используется в классах-наследниках)
         /// </summary>
-        [JsonConstructor]
-        public ActivityInfo(DateTime Date, string Message)
+        protected ActivityInfo(DateTime Date, string Message)
             : this(Message)
         {
             this.Date = Date;
         }
+
+        /// <summary>
+        /// Конструктор для EF
+        /// </summary>
+        protected ActivityInfo() { }
     }
 }

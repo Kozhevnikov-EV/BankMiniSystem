@@ -26,6 +26,11 @@ namespace BankMiniSystem.Views
 
         private void Button_ConnectToDB(object sender, RoutedEventArgs e)
         {
+            StartBtn.IsEnabled = false;
+            ExitBtn.IsEnabled = false;
+            StartBtn.Background = Brushes.LightGray;
+            ExitBtn.Background = Brushes.LightGray;
+            StartBtn.Content = "Загрузка...";
             MainWindow window = new MainWindow();
             window.Show();
             Close();

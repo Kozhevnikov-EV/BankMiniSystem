@@ -47,17 +47,17 @@ namespace BankMiniSystem
         /// <summary>
         /// Коллекция Юр. лиц для отображения в главном окне в DataGrid
         /// </summary>
-        internal ObservableCollection<Company> companies { get; set; }
+        internal ObservableCollection<Company> Companies { get; set; }
 
         /// <summary>
         /// Коллекция счетов клиента для отображения в DataGrid
         /// </summary>
-        internal ObservableCollection<Account> accounts { get; set; }
+        internal ObservableCollection<Account> Accounts { get; set; }
 
         /// <summary>
         /// Коллекция сообщений счетов об изменении балансов
         /// </summary>
-        internal ObservableCollection<ActivityInfo> activities { get; set; }
+        internal ObservableCollection<ActivityInfo> Activities { get; set; }
 
         /// <summary>
         /// Текущий выбранный клиент в DataGrid
@@ -73,15 +73,15 @@ namespace BankMiniSystem
             bank = new Bank(); //инициализируем экземпляр банка из БД
             naturals = new ObservableCollection<NaturalPerson>(); //инициализируем коллекции клиентов
             VIPs = new ObservableCollection<VIP>();
-            companies = new ObservableCollection<Company>();
-            accounts = new ObservableCollection<Account>(); //и счетов
-            activities = new ObservableCollection<ActivityInfo>();
+            Companies = new ObservableCollection<Company>();
+            Accounts = new ObservableCollection<Account>(); //и счетов
+            Activities = new ObservableCollection<ActivityInfo>();
 
             NaturalsTable.ItemsSource = naturals; //осуществляем привязку коллекций клиентов к DataGrid-ам
             VIPsTable.ItemsSource = VIPs;
-            CompaniesTable.ItemsSource = companies;
-            AccountTable.ItemsSource = accounts; //и привязку счетов
-            LogPanel.ItemsSource = activities;
+            CompaniesTable.ItemsSource = Companies;
+            AccountTable.ItemsSource = Accounts; //и привязку счетов
+            LogPanel.ItemsSource = Activities;
             Refresh();
         }
         #endregion
@@ -92,14 +92,14 @@ namespace BankMiniSystem
         /// </summary>
         public void Refresh()
         {
-            ViewService.CreateClientCol(bank, naturals);
-            ViewService.CreateClientCol(bank, VIPs);
-            ViewService.CreateClientCol(bank, companies);
-            accounts.Clear();
-            ViewService.CreateAccountCol(bank, accounts, client);
-            ViewService.GetLogCollection(bank, activities);
+            bank.CreateClientCol(naturals);
+            bank.CreateClientCol(VIPs);
+            bank.CreateClientCol(Companies);
+            Accounts.Clear();
+            bank.CreateAccountCol(Accounts, client);
+            bank.GetLogCollection(Activities);
             TodayBox.Text = $"Сегодня {Bank.Today.ToShortDateString()}";
-            if(bank.Name != null) Title = bank.Name.ToString();
+            Title = bank.Name;
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace BankMiniSystem
             if (sender == NaturalsTable) { client = NaturalsTable.SelectedItem as Client; }
             else if (sender == VIPsTable) { client = VIPsTable.SelectedItem as Client; }
             else if (sender == CompaniesTable) { client = CompaniesTable.SelectedItem as Client; }
-            ViewService.CreateAccountCol(bank, accounts, client);
+            bank.CreateAccountCol(Accounts, client);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace BankMiniSystem
         {
             if (bank != null)
             {
-                AllTransactionList allTransactionList = new AllTransactionList(bank.Transactions);
+                AllTransactionList allTransactionList = new AllTransactionList(bank.GetAllTransactions());
                 allTransactionList.Owner = this;
                 allTransactionList.Show();
             }
@@ -245,7 +245,7 @@ namespace BankMiniSystem
             if (AccountTable.SelectedItem != null)
             {
                 AllTransactionList transactionList = new AllTransactionList(
-                    ViewService.GetTransactionsOfAccount(bank, AccountTable.SelectedItem as Account));
+                    bank.GetTransactionsOfAccount(AccountTable.SelectedItem as Account));
                 transactionList.Owner = this;
                 transactionList.Show();
             }
@@ -291,7 +291,7 @@ namespace BankMiniSystem
         /// </summary>
         private void LogPanel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            BankLogList logList = new BankLogList(bank.LogList);
+            BankLogList logList = new BankLogList(bank.GetAllActivities());
             logList.Owner = this;
             logList.Show();
         }
